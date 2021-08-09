@@ -1,0 +1,82 @@
+/*
+## Q1
+
+SELECT name FROM Facilities WHERE membercost > 0;
+
+## Q2
+
+SELECT COUNT(*) FROM Facilities WHERE membercost = 0;
+
+## Q3
+
+SELECT facid, name, membercost, monthlymaintenance 
+FROM Facilities 
+WHERE membercost > 0 AND
+membercost < .2 * monthlymaintenance;
+
+## Q4
+
+SELECT * FROM Facilities WHERE facid IN (1, 5);
+
+## Q5
+
+SELECT name, monthlymaintenance, 
+(CASE WHEN monthlymaintenance < 100 THEN "cheap"
+ELSE "expensive" END) AS category
+FROM Facilities;
+
+## Q6
+
+SELECT firstname, surname
+FROM Members
+WHERE joindate = 
+(SELECT MAX(joindate)
+ FROM Members);
+
+Or 
+
+SELECT firstname, surname
+FROM Members
+ORDER BY joindate DESC
+LIMIT 1;
+
+## Q7
+
+SELECT DISTINCT(CONCAT(firstname , " ", surname)) AS member_name, name
+FROM Members
+JOIN Bookings
+USING (memid)
+JOIN Facilities
+USING (facid)
+WHERE name LIKE "tennis%"
+ORDER BY member_name;
+
+## Q8
+
+SELECT name AS facility, CONCAT(firstname, " " , Surname) AS name,
+(CASE WHEN memid = 0 THEN slotS * GUESTCOST
+ ELSE membercost * SLOTS END) AS cost
+FROM Facilities
+LEFT JOIN Bookings
+USING (facid)
+LEFT JOIN Members
+USING (memid)
+WHERE DATE(starttime) = '2012-09-14' AND 
+((memid = 0 AND guestcost * slots> 30) OR 
+ (memid != 0 AND membercost * slots > 30))
+ ORDER BY cost DESC;
+ 
+ ## Q9
+ 
+ SELECT facility, name, cost
+FROM (SELECT f.name AS facility, CONCAT(m.firstname, " " , m.Surname) AS name,
+(CASE WHEN m.memid = 0 THEN b.slotS * f.guestcost
+ ELSE f.membercost * b.slots END) AS cost
+FROM Facilities AS f
+LEFT JOIN Bookings AS b
+USING (facid)
+LEFT JOIN Members AS m
+USING (memid)
+WHERE DATE(b.starttime) = '2012-09-14')
+WHERE cost > 30
+ORDER BY cost DESC;
